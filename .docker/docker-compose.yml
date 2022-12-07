@@ -1,0 +1,43 @@
+version: '3.7'
+services:
+  back-sell:
+    build:
+      context: ../
+      dockerfile: ./.docker/Dockerfile.develop
+    container_name: sell-back-dev
+    command: npm start
+    working_dir: /opt/web
+    volumes:
+      - /srv/sell/back/public:/opt/web/public
+    image: sell-back-dev
+    restart: always
+    environment:
+      - DB= mongodb://${SELL_DB_USER:-0}:${SELL_DB_PASS:-0}@${SELL_DB_HOST:-0}:27017/${SELL_DB:-0}?authSource=admin
+    ports:
+      - 127.0.0.1:3000:3000
+    networks:
+      sell-back:
+        ipv4_address: 172.135.0.100
+
+  db-sell:
+    image: mongo:latest
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${SELL_DB_USER:-0}
+      - MONGO_INITDB_ROOT_PASSWORD=${SELL_DB_PASS:-0}
+    ports:
+      - 127.0.0.1:27017:27017
+    volumes:
+      - /srv/sell/mongodb/data:/data/db
+    networks:
+        sell-back:
+          ipv4_address: 172.135.0.101
+
+networks:
+  sell-back:
+    name: sell-back-dev
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.135.0.0/24

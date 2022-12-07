@@ -1,0 +1,28 @@
+stages:
+  - deploy-sell_dev
+  - check-sell_dev
+
+##### Sell
+running (sell-dev):
+    stage: deploy-sell_dev
+    script:
+        - docker-compose -f .docker/docker-compose.yml up -d --build back-sell
+    tags:
+        - develop-sell
+    only:
+        refs:
+            - tags
+            - master
+
+checking node (sell-dev):
+    stage: check-sell_dev
+    script:
+        - docker-compose -f .docker/docker-compose.yml logs back-sell
+        - docker-compose -f .docker/docker-compose.yml ps --services --filter "status=running" | grep "back-sell"
+    tags:
+        - develop-sell
+    only:
+        refs:
+            - tags
+            - master
+#####

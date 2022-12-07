@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+  db:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: tty
+      MONGO_INITDB_ROOT_PASSWORD: mytestPass
+    ports:
+      - 27017:27017
+    volumes:
+      - tty-mongodb:/data/db
+    networks:
+      - tty
+
+  back:
+    build:
+      context: ../
+      dockerfile: ./.docker/Dockerfile.tty-back
+    command: npm start
+    working_dir: /opt/web
+    volumes:
+      - tty-public:/opt/web/public
+    image: tty-back
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - tty
+
+volumes:
+  tty-mongodb:
+  tty-public:
+networks:
+  tty:
+    driver: bridge
